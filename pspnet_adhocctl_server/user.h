@@ -75,7 +75,7 @@ typedef struct SceNetAdhocctlUserNode {
 	time_t last_recv;
 	
 	// RX Buffer
-	uint8_t rx[1024];
+	uint8_t rx[2048];
 	uint32_t rxpos;
 } SceNetAdhocctlUserNode;
 

@@ -769,25 +769,16 @@ void transfer_message(SceNetAdhocctlUserNode * user, SceNetAdhocctlGameDataPacke
 		
 		// Iterate Group Players
 		SceNetAdhocctlUserNode * peer = user->group->player;
+		if(peer == NULL) {
+		    return;
+		}
 		while(peer != NULL)
 		{
 		    if(peer->resolver.ip == data->ip && memcmp(&peer->resolver.mac, &data->dmac, sizeof(SceNetEtherAddr)) == 0) {
 			// Send Data
 			printf("find peer to send ip %u\n", data->ip);
-		        SceNetAdhocctlGameDataPacketC2C d;
-			d.base.opcode = OPCODE_GAME_DATA;
-			printf("additional opcode:%d dport:%d\n", data->additional_opcode, data->dport);
-			d.additional_opcode = data->additional_opcode;
-			d.ip = user->resolver.ip;
-			d.dport = data->dport;
-			d.sport = data->sport;
-			d.dmac = data->dmac;
-			d.smac = data->smac;
-			memset(d.data, '\0', 990);
-			printf("data size:%d\n", data->len);
-			d.len = data->len;
-		        memcpy(d.data, data->data, data->len);
-			send(peer->stream, &d, sizeof(d), 0);
+			data->ip = user->resolver.ip;
+			send(peer->stream, data, sizeof(SceNetAdhocctlGameDataPacketC2C)+data->len-1, 0);
 		    }
 		    peer = peer->group_next;
 		}

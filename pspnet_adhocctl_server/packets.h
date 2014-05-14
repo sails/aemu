@@ -119,7 +119,7 @@ typedef struct {
     uint16_t sport;
     uint16_t dport;
     int len;
-    char data[990]; // will change this to a char* for reduce data transfer
+    char data[1];
 } __attribute__((packed)) SceNetAdhocctlGameDataPacketC2C;
 
 

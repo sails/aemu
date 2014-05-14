@@ -29,6 +29,11 @@
 
 // PSP Product Code
 #define PRODUCT_CODE_LENGTH 9
+
+
+#define OPCODE_GAME_DATA 100
+
+
 typedef struct
 {
 	// Game Product Code (ex. ULUS12345)
@@ -78,6 +83,7 @@ typedef struct
 {
 	SceNetAdhocctlPacketBase base;
 	uint32_t ip;
+        SceNetEtherAddr mac;
 } __attribute__((packed)) SceNetAdhocctlDisconnectPacketS2C;
 
 // S2C Scan Packet
@@ -101,5 +107,20 @@ typedef struct
 	SceNetAdhocctlChatPacketC2S base;
 	SceNetAdhocctlNickname name;
 } __attribute__((packed)) SceNetAdhocctlChatPacketS2C;
+
+
+// c2c Packet
+typedef struct {
+    SceNetAdhocctlPacketBase base;
+    uint8_t additional_opcode;
+    SceNetEtherAddr smac;
+    SceNetEtherAddr dmac;
+    uint32_t ip;
+    uint16_t sport;
+    uint16_t dport;
+    int len;
+    char data[990]; // will change this to a char* for reduce data transfer
+} __attribute__((packed)) SceNetAdhocctlGameDataPacketC2C;
+
 
 #endif

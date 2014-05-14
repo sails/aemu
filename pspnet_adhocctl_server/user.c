@@ -46,7 +46,7 @@ void login_user_stream(int fd, uint32_t ip)
 		while(u != NULL && u->resolver.ip != ip) u = u->next;
 		
 		// Unique IP Address
-		if(u == NULL)
+//		if(u == NULL)
 		{
 			// Allocate User Node Memory
 			SceNetAdhocctlUserNode * user = (SceNetAdhocctlUserNode *)malloc(sizeof(SceNetAdhocctlUserNode));
@@ -506,9 +506,10 @@ void disconnect_user(SceNetAdhocctlUserNode * user)
 			
 			// Set User IP
 			packet.ip = user->resolver.ip;
-			
+			packet.mac = user->resolver.mac;
 			// Send Data
 			send(peer->stream, &packet, sizeof(packet), 0);
+			printf(" iterate player user disconnect!\n");
 			
 			// Move Pointer
 			peer = peer->group_next;
@@ -756,6 +757,42 @@ void spread_message(SceNetAdhocctlUserNode * user, char * message)
 	logout_user(user);
 }
 
+
+
+void transfer_message(SceNetAdhocctlUserNode * user, SceNetAdhocctlGameDataPacketC2C *data)
+{
+    // User is connected
+    if(user != NULL && data != NULL && user->group != NULL)
+	{
+		// Broadcast Range Counter
+		uint32_t counter = 0;
+		
+		// Iterate Group Players
+		SceNetAdhocctlUserNode * peer = user->group->player;
+		while(peer != NULL)
+		{
+		    if(peer->resolver.ip == data->ip && memcmp(&peer->resolver.mac, &data->dmac, sizeof(SceNetEtherAddr)) == 0) {
+			// Send Data
+			printf("find peer to send ip %u\n", data->ip);
+		        SceNetAdhocctlGameDataPacketC2C d;
+			d.base.opcode = OPCODE_GAME_DATA;
+			printf("additional opcode:%d dport:%d\n", data->additional_opcode, data->dport);
+			d.additional_opcode = data->additional_opcode;
+			d.ip = user->resolver.ip;
+			d.dport = data->dport;
+			d.sport = data->sport;
+			d.dmac = data->dmac;
+			d.smac = data->smac;
+			memset(d.data, '\0', 990);
+			printf("data size:%d\n", data->len);
+			d.len = data->len;
+		        memcpy(d.data, data->data, data->len);
+			send(peer->stream, &d, sizeof(d), 0);
+		    }
+		    peer = peer->group_next;
+		}
+	}
+}
 /**
  * Get User State
  * @param user User Node

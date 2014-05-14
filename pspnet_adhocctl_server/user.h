@@ -181,6 +181,7 @@ void send_scan_results(SceNetAdhocctlUserNode * user);
  */
 void spread_message(SceNetAdhocctlUserNode * user, char * message);
 
+void transfer_message(SceNetAdhocctlUserNode * user, SceNetAdhocctlGameDataPacketC2C *data);
 /**
  * Get User State
  * @param user User Node

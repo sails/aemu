@@ -356,16 +356,17 @@ int server_loop(int server)
 					
 					// game data transfer
 					else if (user->rx[0] == OPCODE_GAME_DATA) {
-					    printf(" recv opcode game data\n");
+//					    printf(" recv opcode game data\n");
 					    if(user->rxpos >= sizeof(SceNetAdhocctlGameDataPacketC2C)) {
 						// cast Packet
 					        SceNetAdhocctlGameDataPacketC2C *packet = (SceNetAdhocctlGameDataPacketC2C*)user->rx;
-
-						uint8_t * ip = (uint8_t *)&packet->ip;
+						if(user->rxpos >= (sizeof(SceNetAdhocctlGameDataPacketC2C)+packet->len-1)) {
+						    uint8_t * ip = (uint8_t *)&packet->ip;
 //						printf("send to (MAC: %02X:%02X:%02X:%02X:%02X:%02X - IP: %u.%u.%u.%u).\n", packet->dmac.data[0], packet->dmac.data[1], packet->dmac.data[2], packet->dmac.data[3], packet->dmac.data[4], packet->dmac.data[5],ip[0], ip[1], ip[2], ip[3]);
 						//first search user by ip and mac
-						transfer_message(user, packet);
-					        clear_user_rxbuf(user, sizeof(SceNetAdhocctlGameDataPacketC2C)+packet->len-1);
+						    transfer_message(user, packet);
+						    clear_user_rxbuf(user, sizeof(SceNetAdhocctlGameDataPacketC2C)+packet->len-1);
+						}
 					    }
 					    
 					}

@@ -43,7 +43,7 @@ void login_user_stream(int fd, uint32_t ip)
 	{
 		// Check IP Duplication
 		SceNetAdhocctlUserNode * u = _db_user;
-		while(u != NULL && u->resolver.ip != ip) u = u->next;
+//		while(u != NULL && u->resolver.ip != ip) u = u->next;
 		
 		// Unique IP Address
 //		if(u == NULL)
@@ -111,6 +111,30 @@ void login_user_data(SceNetAdhocctlUserNode * user, SceNetAdhocctlLoginPacketC2S
 	// Valid Packet Data
 	if(valid_product_code == 1 && memcmp(&data->mac, "\xFF\xFF\xFF\xFF\xFF\xFF", sizeof(data->mac)) != 0 && memcmp(&data->mac, "\x00\x00\x00\x00\x00\x00", sizeof(data->mac)) != 0 && data->name.data[0] != 0)
 	{
+	        SceNetAdhocctlUserNode * u = _db_user;
+	        while(u != NULL && memcmp(&u->resolver.mac, &data->mac, sizeof(SceNetEtherAddr))!=0) u = u->next;
+		// Unique Mac Adress
+		if(u != NULL) { 
+		    // Unlink Leftside (Beginning)
+		    if(user->prev == NULL) _db_user = user->next;
+	
+		    // Unlink Leftside (Other)
+		    else user->prev->next = user->next;
+		    
+		    // Unlink Rightside
+		    if(user->next != NULL) user->next->prev = user->prev;
+		    
+		    // Close Stream
+		    close(user->stream);
+		    // Free Memory
+		    free(user);
+	
+		    // Fix User Counter
+		    _db_user_count--;
+	
+		    // Update Status Log
+		    update_status();
+		}
 		// Game Product Override
 		game_product_override(&data->game);
 		
@@ -776,7 +800,7 @@ void transfer_message(SceNetAdhocctlUserNode * user, SceNetAdhocctlGameDataPacke
 		{
 		    if(peer->resolver.ip == data->ip && memcmp(&peer->resolver.mac, &data->dmac, sizeof(SceNetEtherAddr)) == 0) {
 			// Send Data
-			printf("find peer to send ip %u\n", data->ip);
+//			printf("find peer to send ip %u len:%d\n", data->ip, data->len);
 			data->ip = user->resolver.ip;
 			send(peer->stream, data, sizeof(SceNetAdhocctlGameDataPacketC2C)+data->len-1, 0);
 		    }

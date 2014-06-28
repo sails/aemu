@@ -111,15 +111,7 @@ void login_user_data(SceNetAdhocctlUserNode * user, SceNetAdhocctlLoginPacketC2S
 		    valid_product_code = 0;
 		}
 	}
-	if(valid_product_code == 1) {
-	    // only allow Monster Hunter 2G(ULUS10391) and Monster Hunter 3(ULJM05800)
-	    if(strncmp(data->game.data, "ULUS10391", 9)==0 || strncmp(data->game.data, "ULJM05800", 9)==0) {
-		
-	    }else {
-		valid_product_code = 0;
-	    }
-	}
-	
+
 	// Valid Packet Data
 	if(valid_product_code == 1 && memcmp(&data->mac, "\xFF\xFF\xFF\xFF\xFF\xFF", sizeof(data->mac)) != 0 && memcmp(&data->mac, "\x00\x00\x00\x00\x00\x00", sizeof(data->mac)) != 0 && data->name.data[0] != 0)
 	{

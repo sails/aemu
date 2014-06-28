@@ -55,6 +55,12 @@ int main(int argc, char * argv[])
 	// Create Signal Receiver for kill / killall
 	signal(SIGTERM, interrupt);
 	
+	fflush(stdout);  
+	FILE *file = freopen("out.log", "a", stdout);
+	if (file != NULL) {
+	    setvbuf(stdout,NULL,_IONBF,0);  
+	}
+
 	// Create Listening Socket
 	int server = create_listen_socket(SERVER_PORT);
 	
@@ -71,6 +77,7 @@ int main(int argc, char * argv[])
 		printf("Shutdown complete.\n");
 	}
 	
+	fclose(stdout);
 	// Return Result
 	return result;
 }

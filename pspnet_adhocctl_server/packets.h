@@ -19,7 +19,9 @@
 #define _PACKETS_H_
 
 #define OPCODE_PING 0
-#define OPCODE_LOGIN 1
+//#define OPCODE_LOGIN 1
+// not allow other ppsspp login
+#define OPCODE_LOGIN 111
 #define OPCODE_CONNECT 2
 #define OPCODE_DISCONNECT 3
 #define OPCODE_SCAN 4

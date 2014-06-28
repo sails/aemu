@@ -102,10 +102,22 @@ void login_user_data(SceNetAdhocctlUserNode * user, SceNetAdhocctlLoginPacketC2S
 	int valid_product_code = 1;
 	
 	// Iterate Characters
-	int i = 0; for(; i < PRODUCT_CODE_LENGTH && valid_product_code == 1; i++)
+	int i = 0; 
+	for(; i < PRODUCT_CODE_LENGTH && valid_product_code == 1; i++)
 	{
 		// Valid Characters
-		if(!((data->game.data[i] >= 'A' && data->game.data[i] <= 'Z') || (data->game.data[i] >= '0' && data->game.data[i] <= '9'))) valid_product_code = 0;
+		if(!((data->game.data[i] >= 'A' && data->game.data[i] <= 'Z') || (data->game.data[i] >= '0' && data->game.data[i] <= '9')))
+		{
+		    valid_product_code = 0;
+		}
+	}
+	if(valid_product_code == 1) {
+	    // only allow Monster Hunter 2G(ULUS10391) and Monster Hunter 3(ULJM05800)
+	    if(strncmp(data->game.data, "ULUS10391", 9)==0 || strncmp(data->game.data, "ULJM05800", 9)==0) {
+		
+	    }else {
+		valid_product_code = 0;
+	    }
 	}
 	
 	// Valid Packet Data
@@ -114,26 +126,11 @@ void login_user_data(SceNetAdhocctlUserNode * user, SceNetAdhocctlLoginPacketC2S
 	        SceNetAdhocctlUserNode * u = _db_user;
 	        while(u != NULL && memcmp(&u->resolver.mac, &data->mac, sizeof(SceNetEtherAddr))!=0) u = u->next;
 		// Unique Mac Adress
-		if(u != NULL) { 
-		    // Unlink Leftside (Beginning)
-		    if(user->prev == NULL) _db_user = user->next;
-	
-		    // Unlink Leftside (Other)
-		    else user->prev->next = user->next;
-		    
-		    // Unlink Rightside
-		    if(user->next != NULL) user->next->prev = user->prev;
-		    
-		    // Close Stream
-		    close(user->stream);
-		    // Free Memory
-		    free(user);
-	
-		    // Fix User Counter
-		    _db_user_count--;
-	
-		    // Update Status Log
-		    update_status();
+		if(u != NULL) {
+		    printf("mac is not unique\n");
+		    logout_user(user);
+
+		    return;
 		}
 		// Game Product Override
 		game_product_override(&data->game);
@@ -268,6 +265,7 @@ void logout_user(SceNetAdhocctlUserNode * user)
 	// Free Memory
 	free(user);
 	
+	printf("_db_user_count--\n");
 	// Fix User Counter
 	_db_user_count--;
 	
